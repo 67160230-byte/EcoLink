@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าสู่ระบบ / สมัครสมาชิก – EcoLink</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-900: #0d2e1a;
+    --green-700: #1a6b3c;
+    --green-500: #2a9d5c;
+    --green-300: #6fcf97;
+    --green-100: #d4f0e0;
+    --green-50:  #f0faf4;
+    --orange-500: #e07b39;
+    --gray-900: #1a1a1a;
+    --gray-700: #3d3d3d;
+    --gray-500: #6b6b6b;
+    --gray-300: #c4c4c4;
+    --gray-200: #e5e5e5;
+    --gray-50:  #f9f9f9;
+    --white: #ffffff;
+    --red: #e53e3e;
+    --font: 'IBM Plex Sans Thai', 'IBM Plex Sans', sans-serif;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  body {
+    font-family: var(--font);
+    color: var(--gray-900);
+    background: var(--gray-50);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* LEFT PANEL */
+  .left-panel {
+    width: 45%;
+    background: var(--green-900);
+    padding: 48px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .left-panel::before {
+    content: '';
+    position: absolute; right: -80px; top: -80px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(42,157,92,0.3) 0%, transparent 70%);
+  }
+  .left-panel::after {
+    content: '';
+    position: absolute; left: -60px; bottom: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(111,207,151,0.15) 0%, transparent 70%);
+  }
+  .left-logo {
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none; position: relative; z-index: 1;
+  }
+  .left-logo-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--green-500);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .left-logo-text { font-size: 22px; font-weight: 600; color: var(--white); }
+  .left-content { position: relative; z-index: 1; }
+  .left-title {
+    font-size: 40px; font-weight: 600; color: var(--white);
+    line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.5px;
+  }
+  .left-title .hl { color: var(--green-300); }
+  .left-desc {
+    font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.7;
+    margin-bottom: 40px;
+  }
+  .left-features { display: flex; flex-direction: column; gap: 16px; }
+  .left-feature {
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .left-feature-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .left-feature-text h4 { font-size: 14px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+  .left-feature-text p { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .left-footer {
+    font-size: 12px; color: rgba(255,255,255,0.35);
+    position: relative; z-index: 1;
+  }
+
+  /* RIGHT PANEL */
+  .right-panel {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 48px 40px;
+    overflow-y: auto;
+  }
+  .form-box {
+    width: 100%; max-width: 420px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex; gap: 0;
+    background: var(--gray-200); border-radius: 10px;
+    padding: 4px; margin-bottom: 32px;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 0;
+    border: none; background: none;
+    font-family: var(--font); font-size: 14px; font-weight: 500;
+    color: var(--gray-500); cursor: pointer; border-radius: 7px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--white); color: var(--green-700);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+  }
+
+  /* FORM */
+  .form-title { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .form-sub { font-size: 14px; color: var(--gray-500); margin-bottom: 28px; }
+
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block; font-size: 13px; font-weight: 500;
+    color: var(--gray-700); margin-bottom: 6px;
+  }
+  .form-label .req { color: var(--green-700); margin-left: 2px; }
+  .form-input {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px; background: var(--white);
+    font-family: var(--font); font-size: 14px; color: var(--gray-900);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .form-input:focus {
+    border-color: var(--green-700);
+    box-shadow: 0 0 0 3px rgba(26,107,60,0.12);
+  }
+  .form-input::placeholder { color: var(--gray-300); }
+
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .form-select {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px; background: var(--white);
+    font-family: var(--font); font-size: 14px; color: var(--gray-900);
+    outline: none; cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+  .form-select:focus { border-color: var(--green-700); }
+
+  .password-wrap { position: relative; }
+  .password-wrap .form-input { padding-right: 44px; }
+  .toggle-pw {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--gray-300);
+    font-size: 18px; padding: 0; line-height: 1;
+  }
+  .toggle-pw:hover { color: var(--gray-500); }
+
+  .pw-strength {
+    display: flex; gap: 4px; margin-top: 8px;
+  }
+  .pw-bar {
+    height: 3px; flex: 1; border-radius: 2px;
+    background: var(--gray-200); transition: background 0.3s;
+  }
+  .pw-label { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+  .checkbox-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 18px;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 16px; height: 16px; flex-shrink: 0;
+    margin-top: 2px; accent-color: var(--green-700); cursor: pointer;
+  }
+  .checkbox-row label { font-size: 13px; color: var(--gray-500); line-height: 1.5; cursor: pointer; }
+  .checkbox-row a { color: var(--green-700); text-decoration: none; }
+  .checkbox-row a:hover { text-decoration: underline; }
+
+  .forgot-row {
+    display: flex; justify-content: flex-end; margin-top: -10px; margin-bottom: 18px;
+  }
+  .forgot-link { font-size: 13px; color: var(--green-700); text-decoration: none; }
+  .forgot-link:hover { text-decoration: underline; }
+
+  .btn-submit {
+    width: 100%; padding: 13px;
+    background: var(--green-700); color: var(--white);
+    border: none; border-radius: 8px;
+    font-family: var(--font); font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+    letter-spacing: 0.2px;
+  }
+  .btn-submit:hover { background: var(--green-500); }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--gray-200); }
+  .divider-text { font-size: 12px; color: var(--gray-300); }
+
+  .btn-social {
+    width: 100%; padding: 11px;
+    background: var(--white); color: var(--gray-700);
+    border: 1.5px solid var(--gray-200); border-radius: 8px;
+    font-family: var(--font); font-size: 14px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 10px;
+  }
+  .btn-social:hover { border-color: var(--gray-300); background: var(--gray-50); }
+  .btn-social img { width: 18px; height: 18px; }
+
+  .form-note {
+    text-align: center; font-size: 13px; color: var(--gray-500);
+    margin-top: 24px;
+  }
+  .form-note a { color: var(--green-700); text-decoration: none; font-weight: 500; }
+  .form-note a:hover { text-decoration: underline; }
+
+  .error-msg {
+    display: none; font-size: 12px; color: var(--red);
+    margin-top: 5px;
+  }
+  .form-input.error { border-color: var(--red); }
+  .form-input.error:focus { box-shadow: 0 0 0 3px rgba(229,62,62,0.12); }
+
+  @media (max-width: 768px) {
+    .left-panel { display: none; }
+    .right-panel { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <a class="left-logo" href="index.html">
+    <div class="left-logo-icon">🌿</div>
+    <span class="left-logo-text">EcoLink</span>
+  </a>
+
+  <div class="left-content">
+    <h2 class="left-title">
+      เปลี่ยน<span class="hl">ของเสีย</span><br>ให้เป็น<span class="hl">โอกาส</span>
+    </h2>
+    <p class="left-desc">
+      เชื่อมโรงงานผู้ขายของเสียกับผู้ซื้อที่ต้องการ<br>
+      ลดต้นทุน สร้างรายได้ และดูแลสิ่งแวดล้อมไปพร้อมกัน
+    </p>
+    <div class="left-features">
+      <div class="left-feature">
+        <div class="left-feature-icon">🤖</div>
+        <div class="left-feature-text">
+          <h4>AI วิเคราะห์ของเสียอัตโนมัติ</h4>
+          <p>ระบุชนิดและคุณภาพของเสียได้อย่างแม่นยำ</p>
+        </div>
+      </div>
+      <div class="left-feature">
+        <div class="left-feature-icon">🔗</div>
+        <div class="left-feature-text">
+          <h4>จับคู่โรงงานอัจฉริยะ</h4>
+          <p>พบผู้ซื้อที่เหมาะสมในเวลาไม่นาน</p>
+        </div>
+      </div>
+      <div class="left-feature">
+        <div class="left-feature-icon">🔒</div>
+        <div class="left-feature-text">
+          <h4>ธุรกรรมปลอดภัย 100%</h4>
+          <p>ระบบ Escrow คุ้มครองทุกการซื้อขาย</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">
+    © 2567 EcoLink · เปลี่ยนของเสียให้มีค่า สร้างอนาคตที่ยั่งยืน 🌿
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="form-box">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+      <button class="tab-btn" onclick="switchTab('register')">สมัครสมาชิก</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="form-panel active" id="panel-login">
+      <h2 class="form-title">ยินดีต้อนรับกลับ</h2>
+      <p class="form-sub">เข้าสู่ระบบเพื่อจัดการของเสียและธุรกรรมของคุณ</p>
+
+      <div class="form-group">
+        <label class="form-label">อีเมล <span class="req">*</span></label>
+        <input type="email" class="form-input" id="login-email" placeholder="example@company.com">
+        <div class="error-msg" id="err-login-email">กรุณากรอกอีเมลที่ถูกต้อง</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">รหัสผ่าน <span class="req">*</span></label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="login-pw" placeholder="••••••••">
+          <button class="toggle-pw" onclick="togglePw('login-pw', this)">👁</button>
+        </div>
+        <div class="error-msg" id="err-login-pw">กรุณากรอกรหัสผ่าน</div>
+      </div>
+
+      <div class="forgot-row">
+        <a href="#" class="forgot-link">ลืมรหัสผ่าน?</a>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="remember" checked>
+        <label for="remember">จดจำการเข้าสู่ระบบ</label>
+      </div>
+
+      <button class="btn-submit" onclick="handleLogin()">เข้าสู่ระบบ →</button>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">หรือเข้าสู่ระบบด้วย</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <button class="btn-social">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M47.5 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h13.2c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.2 7.3-10.5 7.3-17.3z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.8 2.3-8 2.3-6.2 0-11.4-4.2-13.3-9.8H2.6v6.2C6.6 42.5 14.7 48 24 48z"/><path fill="#FBBC05" d="M10.7 28.7c-.5-1.4-.7-2.9-.7-4.7s.3-3.3.7-4.7v-6.2H2.6C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.9l8.1-6.2z"/><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.8-6.8C35.9 2.1 30.5 0 24 0 14.7 0 6.6 5.5 2.6 13.1l8.1 6.2c1.9-5.7 7.1-9.8 13.3-9.8z"/></svg>
+        เข้าสู่ระบบด้วย Google
+      </button>
+
+      <div class="form-note">
+        ยังไม่มีบัญชี? <a href="#" onclick="switchTab('register')">สมัครสมาชิกฟรี</a>
+      </div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div class="form-panel" id="panel-register">
+      <h2 class="form-title">สมัครสมาชิก</h2>
+      <p class="form-sub">สร้างบัญชีเพื่อเริ่มซื้อขายของเสียอุตสาหกรรม</p>
+
+      <div class="input-row">
+        <div class="form-group">
+          <label class="form-label">ชื่อ <span class="req">*</span></label>
+          <input type="text" class="form-input" id="reg-firstname" placeholder="สมชาย">
+          <div class="error-msg" id="err-reg-firstname">กรุณากรอกชื่อ</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">นามสกุล <span class="req">*</span></label>
+          <input type="text" class="form-input" id="reg-lastname" placeholder="ใจดี">
+          <div class="error-msg" id="err-reg-lastname">กรุณากรอกนามสกุล</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">อีเมล <span class="req">*</span></label>
+        <input type="email" class="form-input" id="reg-email" placeholder="example@company.com">
+        <div class="error-msg" id="err-reg-email">กรุณากรอกอีเมลที่ถูกต้อง</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ชื่อบริษัท / โรงงาน <span class="req">*</span></label>
+        <input type="text" class="form-input" id="reg-company" placeholder="บริษัท ABC จำกัด">
+        <div class="error-msg" id="err-reg-company">กรุณากรอกชื่อบริษัท</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ประเภทกิจการ <span class="req">*</span></label>
+        <select class="form-select" id="reg-type">
+          <option value="">-- เลือกประเภท --</option>
+          <option>ผู้ขายของเสีย (โรงงานผลิต)</option>
+          <option>ผู้ซื้อวัตถุดิบ (โรงงานรีไซเคิล)</option>
+          <option>ทั้งผู้ซื้อและผู้ขาย</option>
+          <option>ผู้ให้บริการขนส่ง</option>
+        </select>
+        <div class="error-msg" id="err-reg-type">กรุณาเลือกประเภทกิจการ</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">รหัสผ่าน <span class="req">*</span></label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="reg-pw" placeholder="อย่างน้อย 8 ตัวอักษร" oninput="checkStrength(this.value)">
+          <button class="toggle-pw" onclick="togglePw('reg-pw', this)">👁</button>
+        </div>
+        <div class="pw-strength">
+          <div class="pw-bar" id="pb1"></div>
+          <div class="pw-bar" id="pb2"></div>
+          <div class="pw-bar" id="pb3"></div>
+          <div class="pw-bar" id="pb4"></div>
+        </div>
+        <div class="pw-label" id="pw-label"></div>
+        <div class="error-msg" id="err-reg-pw">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ยืนยันรหัสผ่าน <span class="req">*</span></label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="reg-pw2" placeholder="••••••••">
+          <button class="toggle-pw" onclick="togglePw('reg-pw2', this)">👁</button>
+        </div>
+        <div class="error-msg" id="err-reg-pw2">รหัสผ่านไม่ตรงกัน</div>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="terms">
+        <label for="terms">
+          ฉันยอมรับ <a href="#">เงื่อนไขการใช้งาน</a> และ <a href="#">นโยบายความเป็นส่วนตัว</a> ของ EcoLink
+        </label>
+      </div>
+      <div class="error-msg" id="err-terms" style="display:none; margin-bottom:12px;">กรุณายอมรับเงื่อนไขการใช้งาน</div>
+
+      <button class="btn-submit" onclick="handleRegister()">สมัครสมาชิก →</button>
+
+      <div class="form-note">
+        มีบัญชีแล้ว? <a href="#" onclick="switchTab('login')">เข้าสู่ระบบ</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // TAB SWITCH
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+    });
+    document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+    document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+  }
+
+  // Check hash on load
+  if (window.location.hash === '#register') switchTab('register');
+
+  // TOGGLE PASSWORD VISIBILITY
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  // PASSWORD STRENGTH
+  function checkStrength(val) {
+    const bars = [document.getElementById('pb1'), document.getElementById('pb2'), document.getElementById('pb3'), document.getElementById('pb4')];
+    const label = document.getElementById('pw-label');
+    bars.forEach(b => b.style.background = '#e5e5e5');
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val) || /[a-z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const colors = ['#e53e3e', '#e07b39', '#f5c842', '#2a9d5c'];
+    const labels = ['อ่อนมาก', 'อ่อน', 'ปานกลาง', 'แข็งแกร่ง'];
+    if (val.length > 0) {
+      for (let i = 0; i < score; i++) bars[i].style.background = colors[score - 1];
+      label.textContent = 'ความปลอดภัย: ' + labels[score - 1];
+    } else {
+      label.textContent = '';
+    }
+  }
+
+  // VALIDATION HELPERS
+  function showErr(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? 'block' : 'none';
+  }
+  function setError(inputId, errId, hasErr) {
+    const input = document.getElementById(inputId);
+    if (input) input.classList.toggle('error', hasErr);
+    showErr(errId, hasErr);
+  }
+
+  // LOGIN
+  function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-pw').value;
+    let ok = true;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setError('login-email', 'err-login-email', !emailOk); if (!emailOk) ok = false;
+    setError('login-pw', 'err-login-pw', !pw); if (!pw) ok = false;
+    if (ok) {
+      const btn = document.querySelector('#panel-login .btn-submit');
+      btn.textContent = 'กำลังเข้าสู่ระบบ...';
+      btn.disabled = true;
+      setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+    }
+  }
+
+  // REGISTER
+  function handleRegister() {
+    const fn = document.getElementById('reg-firstname').value.trim();
+    const ln = document.getElementById('reg-lastname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const company = document.getElementById('reg-company').value.trim();
+    const type = document.getElementById('reg-type').value;
+    const pw = document.getElementById('reg-pw').value;
+    const pw2 = document.getElementById('reg-pw2').value;
+    const terms = document.getElementById('terms').checked;
+
+    let ok = true;
+    setError('reg-firstname', 'err-reg-firstname', !fn); if (!fn) ok = false;
+    setError('reg-lastname', 'err-reg-lastname', !ln); if (!ln) ok = false;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setError('reg-email', 'err-reg-email', !emailOk); if (!emailOk) ok = false;
+    setError('reg-company', 'err-reg-company', !company); if (!company) ok = false;
+    setError('reg-type', 'err-reg-type', !type); if (!type) ok = false;
+    setError('reg-pw', 'err-reg-pw', pw.length < 8); if (pw.length < 8) ok = false;
+    setError('reg-pw2', 'err-reg-pw2', pw !== pw2); if (pw !== pw2) ok = false;
+    showErr('err-terms', !terms); if (!terms) ok = false;
+
+    if (ok) {
+      const btn = document.querySelector('#panel-register .btn-submit');
+      btn.textContent = 'กำลังสร้างบัญชี...';
+      btn.disabled = true;
+      setTimeout(() => { window.location.href = 'index.html'; }, 1400);
+    }
+  }
+</script>
+</body>
+</html>

@@ -3,6 +3,9 @@ const app = express();
 
 app.use(express.json());
 
+// --- ให้ Express เรียกใช้งานไฟล์เว็บจากโฟลเดอร์ frontend ---
+app.use(express.static('frontend'));
+
 // --- 1. Authentication ---
 app.post('/api/v1/auth/register', (req, res) => res.status(201).json({ message: "สมัครสมาชิกสำเร็จ" }));
 app.post('/api/v1/auth/login', (req, res) => res.json({ token: "jwt-token-example", message: "เข้าสู่ระบบสำเร็จ" }));

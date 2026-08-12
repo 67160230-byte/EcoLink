@@ -58,10 +58,3 @@ POST /api/v1/wastes/:id/analyze - ส่งของเสียให้ AI ว
 
 GET /api/v1/wastes/:id/recommended-factories - ค้นหาโรงงานรีไซเคิลที่แนะนำ
 
-🧪 Example API Testing (ตัวอย่างการทดสอบผ่าน PowerShell)
-# 1. ทดสอบดึงข้อมูลตนเอง (GET)
-Invoke-RestMethod -Uri "http://localhost:3000/api/v1/users/me" -Method GET
-# 2. ทดสอบเข้าสู่ระบบ (POST)
-Invoke-RestMethod -Uri "http://localhost:3000/api/v1/auth/login" -Method POST
-# 3. ทดสอบระบบ AI วิเคราะห์ขยะ (POST)
-Invoke-RestMethod -Uri "http://localhost:3000/api/v1/wastes/WST-1001/analyze" -Method POST

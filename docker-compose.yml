@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  ecolink-api:
+    build: .
+    container_name: ecolink_api_service
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://ecolink-db:27017/ecolink_db
+    depends_on:
+      - ecolink-db
+
+  ecolink-db:
+    image: mongo:latest
+    container_name: ecolink_mongodb_service
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_ecolink_data:/data/db
+
+volumes:
+  mongo_ecolink_data:

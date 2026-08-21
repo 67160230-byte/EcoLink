@@ -66,8 +66,7 @@ db.factories.insertMany([
 ]);
 
 // 3. Seed Demo User (password: ecolink123)
-// Bcrypt hash of 'ecolink123'
-const demoPasswordHash = '$2b$10$3euP7Wq1uJ4mN1gR6iSZe.uQx0vA3uI7zE1eR9tP6xN2wL4mO6uGe';
+const demoPasswordHash = '$2b$10$roP6oBgOpIdLFefjMocBleURaLzSCi8Xd9VK20K3ZsELBqKspIdaq';
 
 const demoUser = {
   _id: ObjectId('66c000000000000000000001'),

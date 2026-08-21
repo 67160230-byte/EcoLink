@@ -14,7 +14,7 @@ const connectDB = async (retries = 5, delay = 3000) => {
       });
       console.log(`✅ Connected to MongoDB at: ${conn.connection.host} (${conn.connection.name})`);
 
-      // Seed fallback if collections are empty (e.g. Local dev mode)
+      // Seed & ensure demo user and factory data are ready
       await seedFallbackData();
       return conn;
     } catch (error) {
@@ -77,10 +77,11 @@ async function seedFallbackData() {
       console.log('🌱 Seeded verified partner factories');
     }
 
-    const userCount = await User.countDocuments();
-    if (userCount === 0) {
+    // Ensure Demo User exists and has correct password hash
+    let demoUser = await User.findOne({ email: 'demo@ecolink.com' });
+    if (!demoUser) {
       const demoHash = await bcrypt.hash('ecolink123', 10);
-      const demoUser = await User.create({
+      demoUser = await User.create({
         firstname: 'สมศักดิ์',
         lastname: 'กรีนเทค',
         email: 'demo@ecolink.com',
@@ -89,7 +90,18 @@ async function seedFallbackData() {
         password: demoHash,
         kycStatus: 'ผ่านการยืนยัน'
       });
+      console.log('🌱 Seeded demo user (demo@ecolink.com / ecolink123)');
+    } else {
+      const isValid = await bcrypt.compare('ecolink123', demoUser.password);
+      if (!isValid) {
+        demoUser.password = await bcrypt.hash('ecolink123', 10);
+        await demoUser.save();
+        console.log('🔄 Updated demo user password hash to valid ecolink123');
+      }
+    }
 
+    const wasteCount = await Waste.countDocuments();
+    if (wasteCount === 0 && demoUser) {
       await Waste.create([
         {
           userId: demoUser._id,
@@ -114,7 +126,7 @@ async function seedFallbackData() {
           aiGrade: 'A (อลูมิเนียมความบริสุทธิ์สูง)'
         }
       ]);
-      console.log('🌱 Seeded demo user and initial marketplace wastes');
+      console.log('🌱 Seeded initial marketplace wastes');
     }
   } catch (e) {
     console.warn('Seed fallback notice:', e.message);

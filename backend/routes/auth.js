@@ -99,20 +99,44 @@ router.post('/login', async (req, res) => {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: normalizedEmail });
+    let user = await User.findOne({ email: normalizedEmail });
+
+    // Auto-create demo user on-demand if logging in with demo account
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
-      });
+      if (normalizedEmail === 'demo@ecolink.com' && password === 'ecolink123') {
+        const hashedPassword = await bcrypt.hash('ecolink123', 10);
+        user = new User({
+          firstname: 'สมศักดิ์',
+          lastname: 'กรีนเทค',
+          email: 'demo@ecolink.com',
+          company: 'บจก. กรีนพลาส อินดัสทรี',
+          role: 'โรงงานผู้ขาย',
+          password: hashedPassword,
+          kycStatus: 'ผ่านการยืนยัน'
+        });
+        await user.save();
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+        });
+      }
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    let isMatch = await bcrypt.compare(password, user.password);
+
+    // Auto-repair demo user password if hash was outdated or corrupted
     if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
-      });
+      if (normalizedEmail === 'demo@ecolink.com' && password === 'ecolink123') {
+        user.password = await bcrypt.hash('ecolink123', 10);
+        await user.save();
+        isMatch = true;
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+        });
+      }
     }
 
     const token = generateToken(user);
@@ -165,7 +189,6 @@ router.post('/google', async (req, res) => {
       given_name = payload.given_name || 'Google';
       family_name = payload.family_name || 'User';
     } catch (verifyErr) {
-      // Fallback decode for development/testing if token signature verification fails
       console.warn('Google token signature verification failed, attempting payload parse for dev mode...');
       try {
         const base64Url = credential.split('.')[1];
@@ -188,7 +211,6 @@ router.post('/google', async (req, res) => {
 
     let user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      // Auto-create user for Google sign-in
       const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
       user = new User({
         firstname: given_name,
@@ -236,22 +258,29 @@ router.post('/google-mock', async (req, res) => {
     if (!mockUser) {
       const dummyPassword = await bcrypt.hash('ecolink123', 10);
       mockUser = new User({
-        firstname: 'Demo',
-        lastname: 'User',
+        firstname: 'สมศักดิ์',
+        lastname: 'กรีนเทค',
         email: 'demo@ecolink.com',
-        company: 'บริษัท เดโม รีไซเคิล จำกัด',
+        company: 'บจก. กรีนพลาส อินดัสทรี',
         role: 'โรงงานผู้ขาย',
         password: dummyPassword,
         kycStatus: 'ผ่านการยืนยัน'
       });
       await mockUser.save();
+    } else {
+      // Ensure valid password on mock user
+      const isValid = await bcrypt.compare('ecolink123', mockUser.password);
+      if (!isValid) {
+        mockUser.password = await bcrypt.hash('ecolink123', 10);
+        await mockUser.save();
+      }
     }
 
     const token = generateToken(mockUser);
 
     res.json({
       success: true,
-      message: 'เข้าสู่ระบบสำเร็จ (Mock Mode)',
+      message: 'เข้าสู่ระบบสำเร็จ (Demo Account)',
       token,
       user: {
         id: mockUser._id,

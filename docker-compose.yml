@@ -1,6 +1,46 @@
 version: '3.8'
 
 services:
+  # 1. MongoDB Database Service
+  ecolink-db:
+    image: mongo:latest
+    container_name: ecolink_mongodb_service
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=ecolink_db
+    volumes:
+      - mongo_ecolink_data:/data/db
+      - ./docker/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.adminCommand(\"ping\")' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ecolink_network
+
+  # 2. Mongo Express Web Management UI (http://localhost:8081)
+  ecolink-mongo-express:
+    image: mongo-express:latest
+    container_name: ecolink_mongo_express_ui
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=ecolink-db
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH=false
+    depends_on:
+      ecolink-db:
+        condition: service_healthy
+    networks:
+      - ecolink_network
+
+  # 3. Node.js / Express API Service (http://localhost:3000)
   ecolink-api:
     build: .
     container_name: ecolink_api_service
@@ -10,17 +50,22 @@ services:
     environment:
       - PORT=3000
       - MONGO_URI=mongodb://ecolink-db:27017/ecolink_db
-    depends_on:
-      - ecolink-db
-
-  ecolink-db:
-    image: mongo:latest
-    container_name: ecolink_mongodb_service
-    restart: always
-    ports:
-      - "27017:27017"
+      - JWT_SECRET=ecolink_jwt_secret_key_2026_super_secure
+      - NODE_ENV=production
     volumes:
-      - mongo_ecolink_data:/data/db
+      - uploads_data:/usr/src/app/backend/uploads
+    depends_on:
+      ecolink-db:
+        condition: service_healthy
+    networks:
+      - ecolink_network
+
+networks:
+  ecolink_network:
+    driver: bridge
 
 volumes:
   mongo_ecolink_data:
+    name: ecolink_mongo_volume
+  uploads_data:
+    name: ecolink_uploads_volume

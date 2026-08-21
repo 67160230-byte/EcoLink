@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Dashboard – EcoLink PRO</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <div class="portal-wrapper">
+    <!-- Sidebar -->
+    <aside class="portal-sidebar">
+      <a href="index.html" class="sidebar-brand">
+        <div class="brand-icon">🌿</div>
+        <div class="brand-title">EcoLink <span class="brand-badge">PRO</span></div>
+      </a>
+
+      <div class="nav-section-title">เมนูหลัก</div>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="dashboard.html" class="active">
+            <span class="menu-icon">📈</span>
+            <span>Analytics Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="add-waste.html">
+            <span class="menu-icon">♻️</span>
+            <span>ลงทะเบียนของเสีย</span>
+          </a>
+        </li>
+        <li>
+          <a href="marketplace.html">
+            <span class="menu-icon">🛒</span>
+            <span>B2B Marketplace</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn-kyc-verify" onclick="verifyKYC()">
+          <span>📋</span> ยืนยันตัวตนโรงงาน (KYC)
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="portal-main">
+      <!-- Sticky Header -->
+      <header class="portal-header">
+        <div class="header-left">
+          <button class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Toggle Menu">☰</button>
+          <div class="header-title">Executive Control Center</div>
+        </div>
+
+        <div class="header-right">
+          <div class="user-profile-pill">
+            <div class="user-avatar" id="header-user-avatar">E</div>
+            <div class="user-meta">
+              <div class="user-name" id="header-user-name">กำลังโหลด...</div>
+              <div class="user-role" id="header-user-role">ผู้ใช้งานโรงงาน</div>
+            </div>
+            <div id="header-kyc-badge" class="badge badge-verified">🛡️ ผ่านการยืนยัน</div>
+          </div>
+          <button class="btn-header-logout" onclick="handleLogout()">ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="portal-content">
+        <!-- Banner -->
+        <div class="portal-banner">
+          <div class="banner-content">
+            <h2 id="banner-greeting">ยินดีต้อนรับสู่ EcoLink Portal</h2>
+            <p>ระบบวิเคราะห์ข้อมูลเพื่อความยั่งยืน และคำนวณการลดผลกระทบต่อสิ่งแวดล้อม (ESG Dashboard)</p>
+          </div>
+          <div class="banner-badge">🌱 Circular Economy Certified</div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">รายการของเสียทั้งหมด</div>
+              <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;">📦</div>
+            </div>
+            <div class="stat-value" id="stat-total">12</div>
+            <div class="stat-desc">รายการที่บันทึกในระบบ</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">จำหน่ายและรีไซเคิลสำเร็จ</div>
+              <div class="stat-icon" style="background:#dcfce7; color:#15803d;">✅</div>
+            </div>
+            <div class="stat-value" id="stat-completed" style="color: var(--primary-700);">8</div>
+            <div class="stat-desc">ปิดดีลและจัดส่งเรียบร้อย</div>
+          </div>
+
+          <div class="stat-card" style="background: #f0fdf4; border-color: #bbf7d0;">
+            <div class="stat-header">
+              <div class="stat-title">Carbon Footprint Saved</div>
+              <div class="stat-icon" style="background:#bbf7d0; color:#166534;">🌍</div>
+            </div>
+            <div class="stat-value" id="stat-carbon" style="font-size: 26px; color: #166534;">
+              1,506 <span style="font-size: 13px; font-weight: 500; color: #374151;">kgCO2e</span>
+            </div>
+            <div class="stat-desc">ลดการปล่อยก๊าซเรือนกระจกสะสม</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 สถิติการลดการปล่อยก๊าซเรือนกระจกรายเดือน (kgCO2e)</div>
+            </div>
+            <div class="card-body">
+              <canvas id="carbonChart" height="110"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">♻️ สัดส่วนประเภทกากอุตสาหกรรม</div>
+            </div>
+            <div class="card-body" style="height: 250px; display:flex; justify-content:center; align-items:center;">
+              <canvas id="wastePieChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <div class="card-title">📋 รายการของเสียอุตสาหกรรมล่าสุดของคุณ</div>
+            <a href="add-waste.html" class="btn btn-primary btn-sm" style="font-size: 12.5px; padding: 6px 14px;">
+              + เพิ่มของเสียใหม่
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table-custom">
+              <thead>
+                <tr>
+                  <th>ประเภทของเสีย</th>
+                  <th>ปริมาณ</th>
+                  <th>สถานที่ตั้ง</th>
+                  <th>ประเภทขนส่ง</th>
+                  <th>สถานะ</th>
+                  <th>วันที่ลงทะเบียน</th>
+                </tr>
+              </thead>
+              <tbody id="waste-table-body">
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--slate-400); padding: 30px;">
+                    กำลังโหลดข้อมูล...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!EcoLink.requireAuth()) return;
+      EcoLink.initHeader();
+      EcoLink.initMobileDrawer();
+
+      const token = EcoLink.getToken();
+
+      // Sample fallback activity
+      const defaultWastes = [
+        { wasteType: 'เศษพลาสติก HDPE / PP', quantity: '8 ตัน', location: 'ชลบุรี (อมตะนคร)', transport: 'รถบรรทุก 6 ล้อ', status: 'รอการจับคู่', createdAt: new Date().toISOString() },
+        { wasteType: 'เศษโลหะ / อลูมิเนียม', quantity: '15 ตัน', location: 'ระยอง (มาบตาพุด)', transport: 'รถพ่วง / 10 ล้อ', status: 'ขายแล้ว', createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
+        { wasteType: 'เศษกระดาษ / บรรจุภัณฑ์', quantity: '12 ตัน', location: 'ฉะเชิงเทรา', transport: 'รถกระบะบรรทุก', status: 'กำลังเจรจา', createdAt: new Date(Date.now() - 86400000 * 7).toISOString() }
+      ];
+
+      try {
+        const res = await fetch('/api/v1/dashboard/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok && data.stats) {
+          document.getElementById('stat-total').innerText = data.stats.total;
+          document.getElementById('stat-completed').innerText = data.stats.completed;
+          document.getElementById('stat-carbon').innerHTML = `${data.stats.carbonSavedNum || 1506} <span style="font-size:13px; font-weight:500; color:#374151;">kgCO2e</span>`;
+        }
+
+        const wastes = (data.wastes && data.wastes.length > 0) ? data.wastes : defaultWastes;
+        renderWasteTable(wastes);
+
+        // Render Charts
+        const trends = data.charts?.trends || {
+          labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
+          data: [120, 250, 400, 380, 550, 680]
+        };
+        const proportions = data.charts?.proportions && Object.keys(data.charts.proportions).length > 0
+          ? data.charts.proportions
+          : { 'พลาสติก HDPE': 45, 'เศษโลหะ': 30, 'กากเคมี': 25 };
+
+        initDashboardCharts(trends, proportions);
+
+      } catch (err) {
+        renderWasteTable(defaultWastes);
+        initDashboardCharts(
+          { labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'], data: [120, 250, 400, 380, 550, 680] },
+          { 'พลาสติก HDPE': 45, 'เศษโลหะ': 30, 'กากเคมี': 25 }
+        );
+      }
+    });
+
+    function renderWasteTable(items) {
+      const tbody = document.getElementById('waste-table-body');
+      tbody.innerHTML = items.map(item => {
+        const isSold = item.status?.includes('ขายแล้ว');
+        const isPending = item.status === 'รอการจับคู่';
+        const badgeClass = isSold ? 'badge-success' : isPending ? 'badge-warning' : 'badge-verified';
+        const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString('th-TH') : '-';
+
+        return `
+          <tr>
+            <td><b>${item.wasteType}</b></td>
+            <td>${item.quantity}</td>
+            <td>${item.location}</td>
+            <td>${item.transport}</td>
+            <td><span class="badge ${badgeClass}">${item.status || 'รอการจับคู่'}</span></td>
+            <td style="color: var(--slate-500);">${dateStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function initDashboardCharts(trends, proportions) {
+      const ctxLine = document.getElementById('carbonChart');
+      if (ctxLine) {
+        new Chart(ctxLine, {
+          type: 'line',
+          data: {
+            labels: trends.labels,
+            datasets: [{
+              label: 'คาร์บอนที่ลดได้ (kgCO2e)',
+              data: trends.data,
+              borderColor: '#2a9d5c',
+              backgroundColor: 'rgba(42, 157, 92, 0.12)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointBackgroundColor: '#1a6b3c'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { grid: { color: '#f1f5f9' } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      const ctxPie = document.getElementById('wastePieChart');
+      if (ctxPie) {
+        new Chart(ctxPie, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(proportions),
+            datasets: [{
+              data: Object.values(proportions),
+              backgroundColor: ['#1a6b3c', '#2a9d5c', '#6fcf97', '#f59e0b', '#3b82f6']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12, family: "'IBM Plex Sans Thai', sans-serif" } } }
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

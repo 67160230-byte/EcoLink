@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ลงทะเบียนกากอุตสาหกรรม – EcoLink PRO</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <div class="portal-wrapper">
+    <!-- Sidebar -->
+    <aside class="portal-sidebar">
+      <a href="index.html" class="sidebar-brand">
+        <div class="brand-icon">🌿</div>
+        <div class="brand-title">EcoLink <span class="brand-badge">PRO</span></div>
+      </a>
+
+      <div class="nav-section-title">เมนูหลัก</div>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="dashboard.html">
+            <span class="menu-icon">📈</span>
+            <span>Analytics Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="add-waste.html" class="active">
+            <span class="menu-icon">♻️</span>
+            <span>ลงทะเบียนของเสีย</span>
+          </a>
+        </li>
+        <li>
+          <a href="marketplace.html">
+            <span class="menu-icon">🛒</span>
+            <span>B2B Marketplace</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn-kyc-verify" onclick="verifyKYC()">
+          <span>📋</span> ยืนยันตัวตนโรงงาน (KYC)
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
+    <main class="portal-main">
+      <header class="portal-header">
+        <div class="header-left">
+          <button class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Toggle Menu">☰</button>
+          <div class="header-title">ระบบลงทะเบียนของเสีย & AI Matching</div>
+        </div>
+
+        <div class="header-right">
+          <div class="user-profile-pill">
+            <div class="user-avatar" id="header-user-avatar">E</div>
+            <div class="user-meta">
+              <div class="user-name" id="header-user-name">กำลังโหลด...</div>
+              <div class="user-role" id="header-user-role">ผู้ใช้งาน</div>
+            </div>
+            <div id="header-kyc-badge" class="badge badge-verified">🛡️ ผ่านการยืนยัน</div>
+          </div>
+          <button class="btn-header-logout" onclick="handleLogout()">ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <div class="portal-content" style="max-width: 880px;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">ลงทะเบียนกากอุตสาหกรรมเพื่อจำหน่าย</h1>
+            <p class="page-subtitle">กรอกข้อมูลของเสีย ระบบ AI จะคำนวณเกรดและจับคู่โรงงานรับซื้อที่ให้ผลตอบแทนสูงสุดให้ทันที</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <form onsubmit="event.preventDefault(); submitWasteForm();">
+            <div class="form-group">
+              <label class="form-label">ประเภทกากอุตสาหกรรม / วัสดุ *</label>
+              <select id="w-type" class="form-select" required>
+                <option value="">-- เลือกประเภทของเสีย --</option>
+                <option value="เศษพลาสติก HDPE / PP">เศษพลาสติก HDPE / PP (คัดแยก/บดเกล็ด)</option>
+                <option value="เศษโลหะ / อลูมิเนียม">เศษโลหะ / อลูมิเนียม (เกรดอุตสาหกรรม)</option>
+                <option value="กากเคมีอุตสาหกรรม">กากเคมีอุตสาหกรรม (ผ่านการบำบัดเบื้องต้น)</option>
+                <option value="เศษกระดาษ / บรรจุภัณฑ์">เศษกระดาษ / บรรจุภัณฑ์อัดก้อน</option>
+              </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">ปริมาณโดยประมาณ *</label>
+                <select id="w-qty" class="form-select" required>
+                  <option value="">-- เลือกปริมาณ --</option>
+                  <option value="1 - 5 ตัน">1 - 5 ตัน</option>
+                  <option value="5 - 10 ตัน">5 - 10 ตัน</option>
+                  <option value="10 - 20 ตัน">10 - 20 ตัน</option>
+                  <option value="มากกว่า 20 ตัน">มากกว่า 20 ตัน</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">จังหวัดตั้งต้น (ที่ตั้งโรงงานของคุณ) *</label>
+                <select id="w-loc" class="form-select" required>
+                  <option value="">-- เลือกจังหวัด --</option>
+                  <option value="ชลบุรี (อมตะนคร/บ่อวิน)">ชลบุรี (อมตะนคร/บ่อวิน)</option>
+                  <option value="ระยอง (มาบตาพุด)">ระยอง (มาบตาพุด)</option>
+                  <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
+                  <option value="สมุทรปราการ">สมุทรปราการ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ประเภทรถขนส่งที่ต้องการ *</label>
+              <select id="w-trans" class="form-select" required>
+                <option value="">-- เลือกรถขนส่ง --</option>
+                <option value="รถกระบะบรรทุก (ไม่เกิน 2 ตัน)">รถกระบะบรรทุก (ไม่เกิน 2 ตัน)</option>
+                <option value="รถบรรทุก 6 ล้อ (ขนาดกลาง)">รถบรรทุก 6 ล้อ (ขนาดกลาง)</option>
+                <option value="รถพ่วง / 10 ล้อ (ขนาดใหญ่)">รถพ่วง / 10 ล้อ (ขนาดใหญ่)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">รายละเอียดเพิ่มเติม / คุณสมบัติเฉพาะ</label>
+              <input type="text" id="w-desc" class="form-control" placeholder="เช่น บรรจุถุง Big Bag, ความชื้นต่ำ, มีใบ Certificate ตรวจวิเคราะห์">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-submit-waste" style="margin-top: 16px;">
+              ⚡ ประมวลผลและจับคู่โรงงานด้วย AI Engine
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- AI Loading Modal -->
+  <div class="ai-loader-modal" id="ai-loading-overlay">
+    <div class="ai-spinner"></div>
+    <h3 id="ai-status-title" style="font-size: 19px; font-weight: 700; margin-bottom: 6px;">AI กำลังวิเคราะห์เกรดของเสีย...</h3>
+    <p id="ai-status-sub" style="font-size: 13.5px; color: var(--primary-300);">กำลังคำนวณระยะทางและโรงงานรับซื้อที่ให้ผลตอบแทนสูงสุด</p>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!EcoLink.requireAuth()) return;
+      EcoLink.initHeader();
+      EcoLink.initMobileDrawer();
+    });
+
+    async function submitWasteForm() {
+      const data = {
+        wasteType: document.getElementById('w-type').value,
+        quantity: document.getElementById('w-qty').value,
+        location: document.getElementById('w-loc').value,
+        transport: document.getElementById('w-trans').value,
+        description: document.getElementById('w-desc').value || '-'
+      };
+
+      if (!data.wasteType || !data.quantity || !data.location || !data.transport) {
+        return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง', 'warning');
+      }
+
+      const token = EcoLink.getToken();
+      const overlay = document.getElementById('ai-loading-overlay');
+      overlay.style.display = 'flex';
+
+      setTimeout(() => {
+        document.getElementById('ai-status-title').innerText = 'กำลังคำนวณเส้นทางและจับคู่โรงงานที่ใกล้ที่สุด...';
+      }, 1000);
+
+      try {
+        const res = await fetch('/api/v1/wastes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+        const resData = await res.json();
+
+        if (res.ok && resData.wasteId) {
+          setTimeout(() => {
+            window.location.href = `factories.html?id=${resData.wasteId}`;
+          }, 1800);
+        } else {
+          overlay.style.display = 'none';
+          Swal.fire('ข้อผิดพลาด', resData.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+        }
+      } catch (err) {
+        overlay.style.display = 'none';
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

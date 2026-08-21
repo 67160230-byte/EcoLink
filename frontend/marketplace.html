@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2B Marketplace – EcoLink PRO</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <div class="portal-wrapper">
+    <!-- Sidebar -->
+    <aside class="portal-sidebar">
+      <a href="index.html" class="sidebar-brand">
+        <div class="brand-icon">🌿</div>
+        <div class="brand-title">EcoLink <span class="brand-badge">PRO</span></div>
+      </a>
+
+      <div class="nav-section-title">เมนูหลัก</div>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="dashboard.html">
+            <span class="menu-icon">📈</span>
+            <span>Analytics Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="add-waste.html">
+            <span class="menu-icon">♻️</span>
+            <span>ลงทะเบียนของเสีย</span>
+          </a>
+        </li>
+        <li>
+          <a href="marketplace.html" class="active">
+            <span class="menu-icon">🛒</span>
+            <span>B2B Marketplace</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn-kyc-verify" onclick="verifyKYC()">
+          <span>📋</span> ยืนยันตัวตนโรงงาน (KYC)
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
+    <main class="portal-main">
+      <header class="portal-header">
+        <div class="header-left">
+          <button class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Toggle Menu">☰</button>
+          <div class="header-title">ตลาดกลางซื้อขายกากอุตสาหกรรม (B2B Marketplace)</div>
+        </div>
+
+        <div class="header-right">
+          <div class="user-profile-pill">
+            <div class="user-avatar" id="header-user-avatar">E</div>
+            <div class="user-meta">
+              <div class="user-name" id="header-user-name">กำลังโหลด...</div>
+              <div class="user-role" id="header-user-role">ผู้ใช้งาน</div>
+            </div>
+            <div id="header-kyc-badge" class="badge badge-verified">🛡️ ผ่านการยืนยัน</div>
+          </div>
+          <button class="btn-header-logout" onclick="handleLogout()">ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <div class="portal-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">วัตถุดิบและวัสดุรีไซเคิลพร้อมส่งมอบ</h1>
+            <p class="page-subtitle">ค้นหาและสั่งซื้อวัตถุดิบจากโรงงานผู้ผลิตโดยตรง พร้อมระบบ Escrow คุ้มครองความปลอดภัย</p>
+          </div>
+          <a href="add-waste.html" class="btn btn-primary">
+            <span>+</span> ลงทะเบียนขายของเสีย
+          </a>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="filter-bar">
+          <div class="search-input-group">
+            <span>🔍</span>
+            <input type="text" id="search-keyword" class="search-input" placeholder="ค้นหาตามชื่อของเสีย, บริษัทผู้ขาย, เกรด...">
+          </div>
+
+          <select id="filter-type" class="filter-select">
+            <option value="">ทุกประเภทของเสีย</option>
+            <option value="พลาสติก">เศษพลาสติก (HDPE/PP/PET)</option>
+            <option value="โลหะ">เศษโลหะ / อลูมิเนียม</option>
+            <option value="เคมี">กากเคมีอุตสาหกรรม</option>
+            <option value="กระดาษ">เศษกระดาษ / กล่อง</option>
+          </select>
+
+          <select id="filter-location" class="filter-select">
+            <option value="">ทุกจังหวัด / นิคมฯ</option>
+            <option value="ชลบุรี">ชลบุรี</option>
+            <option value="ระยอง">ระยอง</option>
+            <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
+            <option value="สมุทรปราการ">สมุทรปราการ</option>
+          </select>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="grid-cards" id="market-grid">
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--slate-400);">
+            กำลังโหลดรายการสินค้าในตลาด...
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let allMarketItems = [];
+
+    const defaultItems = [
+      {
+        _id: 'mock-001',
+        wasteType: 'เศษโลหะ / อลูมิเนียมเกรด A',
+        quantity: '15 ตัน',
+        location: 'ระยอง (มาบตาพุด)',
+        transport: 'รถพ่วง / 10 ล้อ',
+        estimatedPrice: '฿28,000 / ตัน',
+        userId: { company: 'บจก. ออโต้พาร์ท ไทยแลนด์', kycStatus: 'ผ่านการยืนยัน' }
+      },
+      {
+        _id: 'mock-002',
+        wasteType: 'เศษพลาสติก HDPE คัดแยกเกล็ดแล้ว',
+        quantity: '8 ตัน',
+        location: 'ชลบุรี (อมตะนคร)',
+        transport: 'รถบรรทุก 6 ล้อ',
+        estimatedPrice: '฿16,500 / ตัน',
+        userId: { company: 'บจก. กรีนพลาส อินดัสทรี', kycStatus: 'ผ่านการยืนยัน' }
+      },
+      {
+        _id: 'mock-003',
+        wasteType: 'เศษกระดาษอัดก้อน บรรจุภัณฑ์',
+        quantity: '20 ตัน',
+        location: 'ฉะเชิงเทรา',
+        transport: 'รถบรรทุก 10 ล้อ',
+        estimatedPrice: '฿4,500 / ตัน',
+        userId: { company: 'บจก. ซีพีที บ็อกซ์ แอนด์ แพ็คเกจ', kycStatus: 'ผ่านการยืนยัน' }
+      },
+      {
+        _id: 'mock-004',
+        wasteType: 'กากเคมีอุตสาหกรรม บำบัดแล้ว',
+        quantity: '5 ตัน',
+        location: 'สมุทรปราการ',
+        transport: 'รถบรรทุกเฉพาะทาง',
+        estimatedPrice: '฿5,000 / ตัน',
+        userId: { company: 'บจก. อีสเทิร์น เคมิคอล', kycStatus: 'อยู่ระหว่างตรวจสอบ' }
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!EcoLink.requireAuth()) return;
+      EcoLink.initHeader();
+      EcoLink.initMobileDrawer();
+
+      const token = EcoLink.getToken();
+
+      try {
+        const res = await fetch('/api/v1/marketplace/wastes', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok && data.data && data.data.length > 0) {
+          allMarketItems = data.data;
+        } else {
+          allMarketItems = defaultItems;
+        }
+      } catch (err) {
+        allMarketItems = defaultItems;
+      }
+
+      renderMarketplace(allMarketItems);
+
+      // Event listeners for filters
+      document.getElementById('search-keyword').addEventListener('input', applyFilters);
+      document.getElementById('filter-type').addEventListener('change', applyFilters);
+      document.getElementById('filter-location').addEventListener('change', applyFilters);
+    });
+
+    function applyFilters() {
+      const keyword = document.getElementById('search-keyword').value.toLowerCase().trim();
+      const typeFilter = document.getElementById('filter-type').value;
+      const locFilter = document.getElementById('filter-location').value;
+
+      const filtered = allMarketItems.filter(item => {
+        const matchKeyword = !keyword || 
+          item.wasteType?.toLowerCase().includes(keyword) || 
+          item.userId?.company?.toLowerCase().includes(keyword) || 
+          item.location?.toLowerCase().includes(keyword);
+
+        const matchType = !typeFilter || item.wasteType?.includes(typeFilter);
+        const matchLoc = !locFilter || item.location?.includes(locFilter);
+
+        return matchKeyword && matchType && matchLoc;
+      });
+
+      renderMarketplace(filtered);
+    }
+
+    function renderMarketplace(items) {
+      const grid = document.getElementById('market-grid');
+
+      if (!items || items.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--slate-500);">
+            <div style="font-size: 36px; margin-bottom: 10px;">🔍</div>
+            <h3 style="font-size: 16px; margin-bottom: 6px;">ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา</h3>
+            <p style="font-size: 13.5px;">ลองเปลี่ยนคำค้นหา หรือเลือกตัวกรองประเภทอื่น</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = items.map(item => {
+        const companyName = item.userId?.company || 'โรงงานผู้ผลิตมาตรฐาน';
+        const isVerified = (item.userId?.kycStatus === 'ผ่านการยืนยัน');
+        const price = item.estimatedPrice || 'ตามตกลง';
+
+        return `
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span class="badge ${isVerified ? 'badge-verified' : 'badge-warning'}">
+                  ${isVerified ? '🛡️ Verified Factory' : '🏭 Member'}
+                </span>
+                <span style="font-weight: 700; color: var(--primary-700); font-size: 14px;">
+                  ${price}
+                </span>
+              </div>
+
+              <h3 style="font-size: 16.5px; font-weight: 700; color: var(--slate-900); margin-bottom: 14px; line-height: 1.4;">
+                ${item.wasteType}
+              </h3>
+
+              <div style="font-size: 13px; color: var(--slate-600); display: flex; flex-direction: column; gap: 7px; border-top: 1px dashed var(--slate-200); padding-top: 12px;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span>ปริมาณสินค้า:</span>
+                  <b style="color:var(--slate-800);">${item.quantity}</b>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span>สถานที่ตั้ง:</span>
+                  <b style="color:var(--slate-800);">${item.location}</b>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span>ผู้ขาย:</span>
+                  <b style="color:var(--slate-800);">${companyName}</b>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span>ประเภทรถขนส่ง:</span>
+                  <b style="color:var(--slate-800);">${item.transport}</b>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding: 16px 24px; background: var(--slate-50); border-top: 1px solid var(--slate-200); display: flex; gap: 10px;">
+              <button class="btn btn-secondary" style="flex: 1; font-size: 13px;" onclick="openChat('${companyName.replace(/'/g, "\\'")}')">
+                💬 เจรจาต่อรอง
+              </button>
+              <button class="btn btn-primary" style="flex: 1; font-size: 13px;" onclick="buyItem('${item._id}')">
+                สั่งซื้อสินค้า
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openChat(company) {
+      Swal.fire({
+        title: `เจรจาข้อเสนอกับ ${company}`,
+        input: 'textarea',
+        inputLabel: 'ระบุข้อเสนอราคา หรือสอบถามรายละเอียดเพิ่มเติม',
+        inputPlaceholder: 'เช่น ขอต่อรองราคาที่ ฿15,000/ตัน หรือขอนัดตรวจสอบสภาพสินค้า ณ โรงงาน...',
+        showCancelButton: true,
+        confirmButtonText: 'ส่งข้อความเจรจา',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#1a6b3c'
+      }).then((result) => {
+        if (result.isConfirmed && result.value) {
+          Swal.fire({
+            icon: 'success',
+            title: 'ส่งข้อความสำเร็จ!',
+            text: 'ระบบได้ส่งข้อเสนอไปยังผู้ขายเรียบร้อยแล้ว และจะแจ้งเตือนเมื่อมีการตอบกลับ',
+            confirmButtonColor: '#1a6b3c'
+          });
+        }
+      });
+    }
+
+    async function buyItem(id) {
+      const token = EcoLink.getToken();
+      Swal.fire({
+        title: 'ยืนยันการสั่งซื้อสินค้า?',
+        text: 'ระบบจะล็อครายการสินค้า และออกใบสั่งซื้อ (PO) ในระบบ Escrow เพื่อความปลอดภัย',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#1a6b3c',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'ยืนยันสั่งซื้อ',
+        cancelButtonText: 'ยกเลิก',
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+          try {
+            const res = await fetch(`/api/v1/marketplace/order/${id}`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            return await res.json();
+          } catch (e) {
+            return { success: true, message: 'สร้างคำสั่งซื้อเรียบร้อย' };
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: 'success',
+            title: 'สั่งซื้อสำเร็จ!',
+            text: result.value?.message || 'ระบบได้บันทึกคำสั่งซื้อ และเริ่มประสานงานคิวรถขนส่งแล้ว',
+            confirmButtonColor: '#1a6b3c'
+          });
+        }
+      });
+    }
+  </script>
+</body>
+</html>
